@@ -64,7 +64,7 @@ public class ListCustomers {
 	public static int writeCustomerList(int userId, String name2) {
 
 		try {
-			FileWriter fstream = new FileWriter("C://Sumana//CustomerList.txt", true);
+			FileWriter fstream = new FileWriter("CustomerList.txt", true);
 			BufferedWriter out = new BufferedWriter(fstream);
 			out.write(+userId + "  " + name2 + "\n");
 			out.close();
