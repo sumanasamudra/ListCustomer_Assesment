@@ -1,0 +1,112 @@
+package assesment;
+
+import java.net.*;
+import java.util.Map;
+import java.util.TreeMap;
+import java.io.*;
+
+public class ListCustomers {
+
+	public static void main(String[] args) {
+		// TODO Auto-generated method stub
+		URL url;
+		String sCurrentLine = null;
+		String[] strings = null;
+		int user_id = 0;
+		String name = null;
+		double latitude = 0;
+		double longitude = 0;
+		int j = 0;
+
+		TreeMap<Integer, String> map = new TreeMap<>();
+
+		try {
+			url = new URL("https://s3.amazonaws.com/intercom-take-home-test/customers.txt");
+			BufferedReader bufferReader = new BufferedReader(new InputStreamReader(url.openStream()));
+
+			while ((sCurrentLine = bufferReader.readLine()) != null) {
+
+				strings = sCurrentLine.split(",");
+
+				user_id = (Integer.parseInt((strings[1].substring(strings[1].lastIndexOf(':') + 1)).trim()));
+				name = (strings[2].substring(strings[2].lastIndexOf(':') + 1)).substring(2,
+						(strings[2].substring(strings[2].lastIndexOf(':') + 1)).length() - 1);
+				latitude = Double.parseDouble((strings[0].substring(strings[0].lastIndexOf(':') + 1)).substring(2,
+						(strings[0].substring(strings[0].lastIndexOf(':') + 1)).length() - 1));
+				longitude = Double.parseDouble((strings[3].substring(strings[3].lastIndexOf(':') + 1)).substring(2,
+						(strings[3].substring(strings[3].lastIndexOf(':') + 1)).length() - 2));
+
+				j = calculateDistance(user_id, latitude, longitude);
+
+				if (!(j == 0)) {
+
+					map.put(user_id, name);
+
+				}
+
+			}
+			for (Map.Entry<Integer, String> e : map.entrySet()) {
+				writeCustomerList(e.getKey(), e.getValue());
+
+			}
+		} catch (MalformedURLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (NumberFormatException e) {
+			e.printStackTrace();
+		}
+
+	}
+
+	public static int writeCustomerList(int userId, String name2) {
+
+		try {
+			FileWriter fstream = new FileWriter("C://Sumana//CustomerList.txt", true);
+			BufferedWriter out = new BufferedWriter(fstream);
+			out.write(+userId + "  " + name2 + "\n");
+			out.close();
+		} catch (Exception e) {
+			System.err.println("Error while writing to file: " + e.getMessage());
+		}
+		return userId;
+
+	}
+
+	public static int calculateDistance(int userId, double latitude2, double longitude2) {
+
+		double latitude1 = 53.339428;
+		double longitude1 = -6.257664;
+
+		latitude1 = Math.toRadians(latitude1);
+		longitude1 = Math.toRadians(longitude1);
+		latitude2 = Math.toRadians(latitude2);
+		longitude2 = Math.toRadians(longitude2);
+
+		// Haversine formula
+		double dlon = longitude2 - longitude1;
+		double dlat = latitude2 - latitude1;
+		double a = Math.pow(Math.sin(dlat / 2), 2)
+				+ Math.cos(latitude1) * Math.cos(latitude2) * Math.pow(Math.sin(dlon / 2), 2);
+
+		double c = 2 * Math.asin(Math.sqrt(a));
+
+		// Radius of earth in kilometers. Use 3956
+		// for miles
+		double r = 6371;
+
+		// calculate the result
+		double k = (c * r);
+		// System.out.println("Distance: " + k+ " ID : " +userId);
+
+		if (k < 100) {
+			return userId;
+		} else {
+			return 0;
+		}
+
+	}
+
+}
